@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digiwin.ltgx.mapper.QueryVehicleBindSNDetailMapper">
+    <!-- 【查询载具绑定的sn信息】 , 在 查询-1，查询成功返回 用到 -->
+    <select id="queryVehicleBindSNDetail" resultType="com.digiwin.ltgx.domain.QueryVehicleBindSNDetail">
+    SELECT LOTNO as plotno,
+           OPNO as opno,
+           PRODUCTION_SN as sn,
+           PRODUCTION_WIDTH as width,
+           PRODUCTION_LOCATION as location,
+           USER_DEFINED01 as remark1,
+           USER_DEFINED02 as remark2
+    FROM
+        (SELECT A.OPNO,
+                A.LOTNO,
+                A.VEHICLENO,
+                E.VEHICLENAME,
+                E.VEHICLECAPACITY,
+                A.PRODUCTION_SN,
+                A.PRODUCTION_LOCATION,
+                A.PRODUCTION_WIDTH,
+                A.USER_DEFINED01,
+                A.USER_DEFINED02,
+                E.RISK_STATUS,
+                CASE
+                    WHEN LOCATE('-', A.PRODUCTION_LOCATION) != 0
+                    THEN SUBSTRING(A.PRODUCTION_LOCATION, 1, LOCATE('-', A.PRODUCTION_LOCATION) - 1)
+                    ELSE A.PRODUCTION_LOCATION
+                END AS PLF,
+                CASE
+                    WHEN LOCATE('-', A.PRODUCTION_LOCATION) != 0
+                    THEN SUBSTRING(A.PRODUCTION_LOCATION, LOCATE('-', A.PRODUCTION_LOCATION) + 1,
+                                   LENGTH(A.PRODUCTION_LOCATION))
+                    ELSE A.PRODUCTION_LOCATION
+                END AS PLL
+         FROM TBLVEHICLEPRDRELATION A
+         LEFT JOIN TBLVEHVEHICLEBASIS E
+         ON E.VEHICLENO = A.VEHICLENO
+         WHERE A.ISCHANGE = 0
+           AND A.VEHICLENO = #{carrierNo}
+         ) TEMP
+        ORDER BY CAST(PLF AS int) ,
+                 CAST(PLL AS int)
+    </select>
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digiwin.ltgx.mapper.QueryVehicleCleanMapper">
+    <!-- 【载具清空查询】 , 在 载具清空-3 用到，载具清空 暂时不做。 -->
+    <select id="queryVehicleClean" resultType="com.digiwin.ltgx.domain.QueryVehicleCleanDetail">
+        SELECT A.ID                  ,
+               A.LOTNO               ,
+               A.VEHICLENO           ,
+               A.PRODUCTION_SN AS PRODUCTIONSN       ,
+               A.PRODUCTION_WIDTH AS PRODUCTIONWIDTH    ,
+               A.PRODUCTION_LOCATION AS PRODUCTIONLOCATION,
+               A.ISCHANGE            ,
+               A.USER_DEFINED01  AS USERDEFINED01    ,
+               A.USER_DEFINED02  AS USERDEFINED02    ,
+               A.CREATOR             ,
+               A.CREATEDATE          ,
+               A.MODIFY              ,
+               A.MODIFYDATE          ,
+               A.MERGE_VEHICLENO AS MERGEVEHICLENO     ,
+               A.MERGE_DATE AS MERGEDATE         ,
+               A.PROD_STATUS AS PRODSTATUS        ,
+               A.OPNO                ,
+               A.POTNO               ,
+               A.C_USERNO  AS CUSERNO           ,
+               A.USER_DEFINED03  AS USERDEFINED03    ,
+               E.RISK_STATUS AS RISKSTATUS
+        FROM TBLVEHICLEPRDRELATION A
+        LEFT JOIN TBLVEHVEHICLEBASIS E
+        ON E.VEHICLENO = A.VEHICLENO
+        WHERE A.PROD_STATUS = 'Q'
+          AND A.ISCHANGE = '0'
+          AND A.VEHICLENO = #{carrierNo}
+          AND E.ISSUESTATE = '2'
+    </select>
+</mapper>

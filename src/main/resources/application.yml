@@ -1,0 +1,33 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: netty-server
+  datasource:
+    url: jdbc:mysql://172.16.2.205:19030/SMESPROD
+    username: xxxx
+    password: xxxxxx
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+slow-sql:
+  max-cost-time: 100
+
+
+logging:
+  # mybatis sql 打印
+  level:
+    root: INFO  # 设置全局日志级别为DEBUG
+    com.digiwin.ltgx.core: debug
+    com.digiwin.ltgx.mapper: DEBUG
+  file: /root/ltgx-api/netty-server.log
+
+netty:
+  port: 9999
+  host: 0.0.0.0
+
+mybatis-plus:
+  mapperLocations: classpath*:mapper/**/*Mapper.xml
+
+
+

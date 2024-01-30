@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digiwin.ltgx.mapper.QuerySNnoByLotnoOpnoVehicleNoMapper">
+    <!-- 【获取同一生产批，同一作业站，同一载具内的产品SN】 , 在 进站-7 中用到 -->
+    <select id="querySNnoByLotnoOpnoVehicleNo" resultType="com.digiwin.ltgx.domain.QuerySNnoByLotnoOpnoVehicleNoDetail">
+        SELECT DISTINCT A.PRODUCTION_SN AS PRSN
+        FROM (
+            SELECT VEHICLENO,
+                   LOTNO,
+                   PRODUCTION_SN
+            FROM TBLVEHICLEPRDRELATION
+            WHERE ISCHANGE = 0
+              AND VEHICLENO = #{carrierNo}
+              AND LOTNO = #{plotNo}
+        ) A
+        LEFT JOIN (
+            SELECT VEHICLENO,
+                   LOTNO,
+                   PRODUCTION_SN
+            FROM TBLVEHICLEPRDCHECKINFO
+            WHERE OPNO = #{opNo}
+              AND CHECK_TYPE = '1'
+              AND MODIFYDATE IS NULL
+        ) B ON A.LOTNO = B.LOTNO
+          AND A.VEHICLENO = B.VEHICLENO
+        WHERE INSTR(B.PRODUCTION_SN, A.PRODUCTION_SN) != 0
+    </select>
+</mapper>

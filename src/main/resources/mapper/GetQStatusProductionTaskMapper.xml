@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digiwin.ltgx.mapper.GetQStatusProductionTaskMapper">
+    <!-- 这个sql在管控点1用到，暂时不做-->
+    <select id="getQStatusProductionTask" resultType="com.digiwin.ltgx.domain.QStatusProductionTaskDetail">
+        SELECT STATUS,
+               COMBINEDTAG,
+               UNITNO,
+               UNITNAME,
+               MOUNITNO,
+               LOTNO,
+               QTY,
+               FINISHTIME,
+               MONO,
+               HOTLOT,
+               OPNO,
+               LOTSTAMP,
+               SEQ,
+               OPNAME,
+               PRODUCTNAME,
+               ITEMSPEC,
+               DISPATCH_QTY AS DISPATCHQTY,
+               ARRIVETIME,
+               PRODUCTNO,
+               WORKDATE,
+               HAVE_SUBOP AS HAVESUBOP,
+               PLUGIN ,
+               DOUBLEUNITQTY
+        FROM(
+            SELECT CASE WHEN D.OSOPTION = 1 THEN 'O'
+                        ELSE 'Q'
+                   END STATUS,
+                   A.CURUNITNO UNITNO,
+                   H.UNITNAME2 UNITNAME,
+                   G.MOUNITNO,
+                   A.LOTNO,
+                   A.CURQTY QTY,
+                   NULL FINISHTIME,
+                   B.MONO,
+                   B.HOTLOT,
+                   A.OPNO,
+                   A.LOTSTAMP,
+                   -1 SEQ ,
+                   D.OPNAME ,
+                   F.PRODUCTNAME ,
+                   F.ITEMSPEC ,
+                   0 DISPATCH_QTY,
+                   A.ARRIVETIME,
+                   '' AS COMBINEDTAG,
+                   CASE WHEN (PBU.DENOMINATOR=0 OR PBU.DENOMINATOR IS NULL)
+                        THEN A.CURQTY
+                        ELSE ROUND( A.CURQTY * PBU.DENOMINATOR / PBU.MOLECULE,2) + NVL(VV.VEHICLEWEIGHT,0)
+                   END DOUBLEUNITQTY,
+                   B.PRODUCTNO PRODUCTNO,
+                   '' WORKDATE ,
+                   (CASE WHEN EXISTS (SELECT NULL FROM TBLOPSUBOP OSO WHERE OSO.OPNO = A.OPNO)
+                         THEN 'Y'
+                         ELSE 'N'
+                   END) HAVE_SUBOP ,
+                   D.PLUGIN
+                   FROM TBLWIPLOTSTATE A
+                   INNER JOIN TBLWIPLOTBASIS B
+                   ON A.BASELOTNO = B.BASELOTNO
+                   LEFT JOIN TBLOPBASIS D
+                   ON A.OPNO = D.OPNO
+                   INNER JOIN TBLPRDOPAREA E
+                   ON B.PRODUCTNO = E.PRODUCTNO
+                   AND B.PRODUCTVERSION = E.PRODUCTVERSION
+                   AND A.OPNO = E.OPNO
+                   INNER JOIN TBLSMDAREARELATION C
+                   ON E.AREANO = C.CONTAINAREANO
+                   LEFT JOIN TBLPRDPRODUCTBASIS F
+                   ON B.PRODUCTNO = F.PRODUCTNO
+                   AND B.PRODUCTVERSION = F.PRODUCTVERSION
+                   LEFT JOIN TBLOEMOBASIS G
+                   ON B.MONO = G.MONO
+                   LEFT JOIN TBLSYSUNITBASIS H
+                   ON A.CURUNITNO =H.UNITNO
+                   LEFT JOIN TBLPRDDOUBLEUNITNOBASIS PBU
+                   ON F.PRODUCTNO = PBU.PRODUCTNO
+                   AND F.PRODUCTVERSION = PBU.PRODUCTVERSION
+                   AND A.OPNO = PBU.OPNO
+                   AND PBU.ACTIONTYPE = '1'
+                   LEFT JOIN TBLVEHVEHICLEBASIS VV
+                   ON PBU.DEFAULTVEHICLENO = VV.VEHICLENO
+                   WHERE ((C.OBJECTTYPE = 2 AND C.OBJECTNO =#{machineNo})
+                    OR (C.OBJECTTYPE = 4
+                          AND C.OBJECTNO IN (
+                                SELECT EQUIPMENTGROUP
+                                FROM TBLEQPGROUPDETAIL
+                                WHERE EQUIPMENTNO = #{machineNo} )
+                        )
+                    )
+                    AND A.CURQTY > 0
+                    AND A.STATUS = 0
+                    AND A.LOTNO = ${plotNo}
+        ) G
+        GROUP BY  STATUS,
+                  COMBINEDTAG,
+                  UNITNO,
+                  UNITNAME,
+                  MOUNITNO,
+                  LOTNO,
+                  QTY,
+                  FINISHTIME,
+                  MONO,
+                  HOTLOT,
+                  OPNO,
+                  LOTSTAMP,
+                  SEQ,
+                  OPNAME,
+                  PRODUCTNAME,
+                  ITEMSPEC,
+                  DISPATCH_QTY,
+                  ARRIVETIME,
+                  PRODUCTNO,
+                  WORKDATE,
+                  HAVE_SUBOP,
+                  PLUGIN ,
+                  DOUBLEUNITQTY
+    </select>
+</mapper>

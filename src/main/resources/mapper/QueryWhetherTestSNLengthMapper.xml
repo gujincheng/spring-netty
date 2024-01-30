@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digiwin.ltgx.mapper.QueryWhetherTestSNLengthMapper">
+    <!-- 【获取是否验证sn长度】 , 在 进站-13 中用到 -->
+    <select id="queryWhetherTestSNLength" resultType="com.digiwin.ltgx.domain.QueryWhetherTestSNLengthDetail">
+        SELECT OPNO,
+               ISVERIFY,
+               ISVERIFYVALUE
+        FROM TBLOPBASIS
+        WHERE ISSUESTATE='2'
+          AND OPNO = #{opNo}
+        LIMIT 10
+    </select>
+</mapper>

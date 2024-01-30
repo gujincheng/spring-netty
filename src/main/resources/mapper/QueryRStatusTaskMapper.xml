@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digiwin.ltgx.mapper.QueryVehicleStatusMapper">
+    <!-- 获取当前R状态任务 , 在出站-2、出站-7 中用到  暂时没用到-->
+    <select id="queryRStatusTask" resultType="com.digiwin.ltgx.domain.QueryRStatusTask">
+        SELECT A.OPNO ,
+               C.INPUTQTY - C.OUTPUTQTY QTY
+        FROM TBLWIPLOTSTATE A
+        INNER JOIN TBLWIPLOTBASIS B
+        ON A.BASELOTNO = B.BASELOTNO
+        INNER JOIN TBLWIPCONT_EQUIPMENT C
+        ON A.LOGGROUPSERIAL = C.LOGGROUPSERIAL AND C.STATUS = 0
+        WHERE C.EQUIPMENTNO = #{machineNo}
+          AND A.LOTNO = #{plotNo}
+          AND C.INPUTQTY - C.OUTPUTQTY > 0
+          AND A.CURQTY > 0
+          AND A.STATUS = 1
+    </select>
+</mapper>

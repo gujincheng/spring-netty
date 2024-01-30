@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digiwin.ltgx.mapper.QueryOpnoTimeSettingMapper">
+    <!-- 【获取作业站设置的Q-TIME、PLLTime、CycleTime时间】,Q-time时间管控了 , 在 进站-8 中用到
+            这个xml和QueryWhetherTestSNLengthMapper.xml可以合并，where条件一样的
+    -->
+    <select id="queryOpnoTimeSetting" resultType="com.digiwin.ltgx.domain.QueryOpnoTimeSettingDetail">
+        SELECT ISQ_TIME AS ISQTIME,
+               Q_TIME AS QTIME,
+               ISPLLTIME,
+               PLLTIME,
+               ISCYCLETIME,
+               CYCLETIME,
+               ISPOT,
+               OPNO
+        FROM TBLOPBASIS
+        WHERE ISSUESTATE = '2'
+          AND OPNO = #{opNo}
+        LIMIT 10
+    </select>
+</mapper>

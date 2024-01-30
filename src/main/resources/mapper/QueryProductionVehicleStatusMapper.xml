@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digiwin.ltgx.mapper.QueryProductionVehicleStatusMapper">
+    <!-- 【获取当前生产批载具信息】  在【进站-1】用到 暂时没有用到-->
+    <select id="queryProductionVehicleStatus" resultType="com.digiwin.ltgx.domain.QueryProductionVehicleStatusDetail">
+        SELECT A.ID                  ,
+               A.LOTNO               ,
+               A.VEHICLENO           ,
+               A.PRODUCTION_SN       ,
+               A.PRODUCTION_WIDTH AS PRODUCTIONWIDTH   ,
+               A.PRODUCTION_LOCATION AS PRODUCTIONLOCATION ,
+               A.ISCHANGE            ,
+               A.USER_DEFINED01 AS  USERDEFINED01    ,
+               A.USER_DEFINED02 AS  USER_DEFINED02    ,
+               A.CREATOR             ,
+               A.CREATEDATE          ,
+               A.MODIFY              ,
+               A.MODIFYDATE          ,
+               A.MERGE_VEHICLENO AS MERGEVEHICLENO    ,
+               A.MERGE_DATE AS MERGEDATE         ,
+               A.PROD_STATUS AS PROD_STATUS        ,
+               A.OPNO                ,
+               A.POTNO               ,
+               A.C_USERNO AS CUSERNO           ,
+               A.USER_DEFINED03  AS  USERDEFINED03   ,
+               B.VEHICLENAME,
+               B.VEHICLEWEIGHT,
+               B.VEHICLECAPACITY
+        FROM TBLVEHICLEPRDRELATION A
+        LEFT JOIN TBLVEHVEHICLEBASIS B
+        ON A.VEHICLENO = B.VEHICLENO
+        WHERE A.LOTNO = #{plotNo}
+          AND A.VEHICLENO = #{carrierNo}
+          AND A.ISCHANGE = '0'
+          AND A.PRODUCTION_SN IS NOT NULL
+    </select>
+</mapper>

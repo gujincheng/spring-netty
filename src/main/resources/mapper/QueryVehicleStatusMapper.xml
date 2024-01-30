@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digiwin.ltgx.mapper.QueryVehicleStatusMapper">
+    <!-- 【查询载具状态】 , 在进站-4、出站-1、绑定-3 中用到
+        也是 【获取载具上一次进出站或变更的时间】的sql，在 进站-8、出站-5
+        之前的SQL：（sql等价于现在的，这样少遍历一次TBLVEHICLEPRDRELATION）
+        SELECT AA.PROD_STATUS,
+               CASE
+                   WHEN AA.CREATEDATE > CHECK_TIME THEN CREATEDATE
+                   ELSE CHECK_TIME
+                   END AS TIME_INFO
+        FROM
+            (SELECT A.PROD_STATUS,
+                    (SELECT MIN(CREATEDATE) FROM TBLVEHICLEPRDRELATION A1 WHERE A1.VEHICLENO = #{carrierNo} AND ISCHANGE = 0) AS CREATEDATE,
+                    (SELECT CREATEDATE FROM TBLVEHICLEPRDCHECKINFO VC WHERE VC.VEHICLENO = #{carrierNo} ORDER BY VC.CREATEDATE DESC LIMIT 1) AS CHECK_TIME
+            FROM TBLVEHICLEPRDRELATION A
+        WHERE ISCHANGE = 0 AND A.VEHICLENO = #{carrierNo}
+            ) AS AA
+        LIMIT 10
+    -->
+    <select id="queryVehicleStatus" resultType="com.digiwin.ltgx.domain.QueryVehicleStatusDetail">
+        SELECT PROD_STATUS AS PRODSTATUS,
+               CASE WHEN CREATEDATE > CHECK_TIME THEN CREATEDATE
+                    ELSE CHECK_TIME
+                   END AS TIME_INFO
+        FROM (
+                 SELECT VEHICLENO,
+                        PROD_STATUS ,
+                        MIN(CREATEDATE) AS CREATEDATE
+                 FROM TBLVEHICLEPRDRELATION
+                 WHERE VEHICLENO = #{carrierNo}
+                   AND ISCHANGE = 0
+                 GROUP BY VEHICLENO,
+                          PROD_STATUS
+             ) A
+        LEFT JOIN (
+            SELECT VEHICLENO,
+                   MAX(CREATEDATE) AS CHECK_TIME
+            FROM TBLVEHICLEPRDCHECKINFO
+            WHERE VEHICLENO = #{carrierNo}
+            GROUP BY VEHICLENO
+        ) B
+        ON A.VEHICLENO = B.VEHICLENO
+    </select>
+</mapper>

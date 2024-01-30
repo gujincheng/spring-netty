@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digiwin.ltgx.mapper.GetVehicleLotnoByCarrierNoMapper">
+    <!-- 【获取载具相关信息】 , 在 进站-1、进站-2、进站-5、进站-6、进站-7、进站-9、出站-2、出站-3、出站-7、查询-1 用到
+        看到所有用到这个sql的数据，最后都是取第一条数据，那这里直接limit即可，没必要把所有数据都拿到
+    -->
+    <select id="getVehicleLotnoByCarrierNo" resultType="com.digiwin.ltgx.domain.VehicleLotnoDetail">
+        SELECT A.OPNO,
+               A.LOTNO,
+               A.VEHICLENO,
+               E.VEHICLENAME,
+               E.VEHICLECAPACITY,
+               A.PRODUCTION_SN AS PRODUCTIONSN,
+               A.PRODUCTION_LOCATION AS PRODUCTIONLOCATION,
+               A.PRODUCTION_WIDTH AS PRODUCTIONWIDTH,
+               A.USER_DEFINED01 AS USERDEFINED01,
+               A.USER_DEFINED02 AS USERDEFINED02,
+               A.PROD_STATUS AS PRODSTATUS,
+               B.BASELOTNO AS BASELOTNO,
+               E.RISK_STATUS AS RISKSTATUS
+        FROM TBLVEHICLEPRDRELATION A
+        LEFT JOIN TBLVEHVEHICLEBASIS E
+        ON E.VEHICLENO = A.VEHICLENO
+        LEFT JOIN (SELECT DISTINCT BASELOTNO FROM TBLWIPLOTSTATE) B
+        ON A.LOTNO = B.BASELOTNO
+        WHERE A.ISCHANGE = 0
+          AND A.VEHICLENO = #{carrierNo}
+        <if test="opNo != null">
+            AND A.OPNO = #{opNo}
+        </if>
+        <if test="prodStatus != null">
+            AND A.PROD_STATUS = #{prodStatus}
+        </if>
+        <if test="issueState != null">
+            AND E.ISSUESTATE = #{issueState}
+        </if>
+        ORDER BY A.PRODUCTION_SN
+        LIMIT 10
+    </select>
+</mapper>

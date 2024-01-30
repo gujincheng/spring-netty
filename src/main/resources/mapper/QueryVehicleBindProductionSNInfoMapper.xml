@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digiwin.ltgx.mapper.QueryVehicleBindProductionSNInfoMapper">
+    <!-- 【获取载具绑定生产批产品SN信息】 , 在 进站-13、出站4 用到 -->
+    <select id="queryVehicleBindProductionSNInfo" resultType="com.digiwin.ltgx.domain.QueryVehicleBindProductionSNInfoDetail">
+        SELECT A.ID,
+               A.PROD_STATUS AS PRODSTATUS,
+               A.OPNO,
+               A.ISCHANGE,
+               A.VEHICLENO,
+               E.VEHICLENAME,
+               E.VEHICLECAPACITY,
+               A.PRODUCTION_SN AS PRODUCTIONSN,
+               B.BASELOTNO,
+               B.PRODUCTNO,
+               C.PRODUCTNAME,
+               C.ITEMSPEC ,
+               A.PRODUCTION_WIDTH AS PRODUCTIONWIDTH,
+               A.PRODUCTION_LOCATION AS PRODUCTIONLOCATION,
+               E.RISK_STATUS AS RISKSTATUS,
+               A.POTNO,
+               A.USER_DEFINED01 AS USERDEFINED01,
+               A.USER_DEFINED02 AS USERDEFINED02,
+               O.ISVERIFY,
+               O.ISVERIFYVALUE,
+               CASE WHEN O.ISVERIFY = 1
+                    THEN IF(LENGTH(A.PRODUCTION_SN) = O.ISVERIFYVALUE, 0, 1)
+                    ELSE 1
+               END AS VERIFY
+        FROM TBLVEHICLEPRDRELATION A
+        LEFT JOIN TBLVEHVEHICLEBASIS E ON E.VEHICLENO = A.VEHICLENO
+        LEFT JOIN TBLWIPLOTBASIS B ON A.LOTNO = B.BASELOTNO
+        LEFT JOIN TBLPRDPRODUCTBASIS C ON C.PRODUCTNO = B.PRODUCTNO AND C.PRODUCTVERSION = B.PRODUCTVERSION
+        LEFT JOIN TBLOPBASIS O ON A.OPNO = O.OPNO
+        WHERE ISCHANGE = 0
+          AND A.VEHICLENO = #{carrierNo}
+    </select>
+</mapper>

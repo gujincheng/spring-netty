@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digiwin.ltgx.mapper.QueryWhetherAuxiliaryExpiredMapper">
+    <!-- 【获取辅料是否过期】 , 在 进站-14 中用到 【【进站14暂时不用做，此xml暂时用不到】】 -->
+    <select id="queryWhetherAuxiliaryExpired" resultType="com.digiwin.ltgx.domain.QueryWhetherAuxiliaryExpiredDetail">
+        SELECT B.SHELFLIFE,
+        A.MATERIALNO,
+        A.EQUIPMENTNO,
+        MIN(A.CREATEDATE) AS STARTDATE,
+        DATE_FORMAT(MIN(A.CREATEDATE), '%Y-%m-01') AS STARTMONTH,
+        DATE_ADD(DATE_FORMAT(MIN(A.CREATEDATE), '%Y-%m-01'), INTERVAL B.SHELFLIFE MONTH) AS EXPIREDTIMES,
+        CASE WHEN DATE_ADD(DATE_FORMAT(MIN(A.CREATEDATE), '%Y-%m-01'), INTERVAL B.SHELFLIFE MONTH) &lt; CURDATE()
+             THEN 0
+             ELSE 1
+        END AS ISEXPIRED
+        FROM TBLACCESSORIESBINDING A
+        LEFT JOIN TBLMTLMATERIALBASIS B
+        ON A.MATERIALNO = B.MATERIALNO
+        WHERE A.MODIFYDATE IS NULL
+          AND B.SHELFLIFE > 0
+          AND A.EQUIPMENTNO = #{machineNo}
+        GROUP BY A.MATERIALNO,
+                 A.EQUIPMENTNO,
+                 B.SHELFLIFE;
+    </select>
+</mapper>
