@@ -135,6 +135,7 @@ public class CustomServerHandler extends SimpleChannelInboundHandler {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("channel关闭");
         socketConnectionsNum.increase(-1L);
         super.channelInactive(ctx);
     }
